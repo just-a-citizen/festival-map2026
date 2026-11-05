@@ -27,6 +27,7 @@ body { margin: 0; padding: 0; font-family: sans-serif; }
 #header h1 {
     margin: 0;
     font-size: 20px;
+    white-space: nowrap;
 }
 
 #count {
@@ -62,3 +63,28 @@ body { margin: 0; padding: 0; font-family: sans-serif; }
     text-decoration: none;
     outline: none;
     }
+
+@media screen and (max-width: 768px) {
+
+  #header {
+    width: auto;
+    max-width: 70%;
+    left: 10px;
+    top: 10px;
+    transform: none;
+    text-align: left;
+  }
+
+  #header h1 {
+    font-size: 18px;
+  }
+
+  #formButton {
+    top: 10px;
+    right: 10px;
+
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+}
