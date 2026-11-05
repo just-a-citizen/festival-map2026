@@ -1,0 +1,64 @@
+#map { height: 100vh; width: 100%; margin: 0; }
+body { margin: 0; padding: 0; font-family: sans-serif; }
+/* ポップアップの見た目を調整 */
+.leaflet-popup-content { font-size: 14px; line-height: 1.6; }
+.spot-name { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
+.reason-title { font-weight: bold; color: #555; margin-top: 8px; display: block; }
+.hometown-info { font-size: 12px; color: #777; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; display: block; }
+#header {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 1000;
+
+    background: rgba(255,255,255,0.95);
+
+    padding: 12px 20px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+
+    text-align: center;
+}
+
+#header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+#count {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #666;
+}
+
+#formButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+
+    background: #5f7a8a;
+    color: white;
+
+    padding: 10px 16px;
+
+    border-radius: 999px;
+
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#formButton:hover {
+    opacity: 0.9;
+    }
+
+#formButton,
+#formButton:visited {
+    color: white;
+    text-decoration: none;
+    outline: none;
+    }

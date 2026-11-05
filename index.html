@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おすすめスポットマップ</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  </head>
+  <body>
+    <div id="header">
+      <h1>全国おすすめスポットマップ</h1>
+      <div id="count">読み込み中...</div>
+    </div>
+
+    <a
+      id="formButton"
+      href="https://docs.google.com/forms/d/e/1FAIpQLSfymFr37J0rsJZl9upevO1TSOwVaE-kTEjxjJ63ooDHJNNQBg/viewform?usp=header"
+      target="_blank"
+    >
+      投稿する
+    </a>
+
+    <div id="map"></div>
+    <script>
+      // 地図の初期表示（日本全体が見えるように設定）
+      const map = L.map('map', {
+        zoomControl: false
+      }).setView([36.0, 137.0], 5);
+
+      L.control.zoom({
+        position: 'bottomleft'
+      }).addTo(map);
+
+      const GAS_URL =
+        "https://script.google.com/macros/s/AKfycbxVCl2u5wWTBBkQ-m6A6GwKvwt6TP2Eb8Lpsj6wRhYqhWj887XGiCadRelWM5hnJqucjQ/exec?action=data";
+
+      // 地図のデザイン（OpenStreetMap）を設定
+      L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          attribution: '&copy; OpenStreetMap contributors'
+        }
+      ).addTo(map);
+
+      // Google Apps Scriptからデータを取得してピンを立てる
+      fetch(GAS_URL)
+        .then(response => response.json())
+        .then(data => {
+
+            console.log("GASから届いたデータ:", data);
+
+            const postCount = data.length - 1;
+
+            document.getElementById("count").textContent =
+            `現在 ${postCount} 件の投稿`;
+
+            if (!data || data.length <= 1) {
+            alert("スプレッドシートにデータが見つかりません。");
+            return;
+            }
+
+            data.forEach(function(row, index) {
+
+            if (index === 0) return;
+
+            const hometown = (row[1] || "") + (row[2] || "");
+            const spotName = row[3] || "名称未設定";
+            const reason = row[5] || "（理由の記載なし）";
+            const catchCopy = row[6] || "";
+
+            const lat = parseFloat(row[9]);
+            const lng = parseFloat(row[10]);
+
+            if (!isNaN(lat) && !isNaN(lng)) {
+
+                const marker = L.marker([lat, lng]).addTo(map);
+
+                const popupContent =
+                (catchCopy
+                    ? "<div style='font-size:15px;font-weight:600;color:#5f7a8a;margin-bottom:6px;'>" +
+                    catchCopy +
+                    "</div>"
+                    : "") +
+                "<span class='spot-name'>" + spotName + "</span>" +
+                "<span class='reason-title'>おすすめ理由：</span>" +
+                "<div>" + reason + "</div>" +
+                "<span class='hometown-info'>投稿者の出身地： " + hometown + "</span>";
+
+                marker.bindPopup(popupContent);
+            }
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    </script>
+  </body>
+</html>

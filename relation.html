@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出身地とスポットのつながりマップ</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      const map = L.map('map').setView([36.0, 137.0], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      const GAS_URL =
+        "https://script.google.com/macros/s/AKfycbxVCl2u5wWTBBkQ-m6A6GwKvwt6TP2Eb8Lpsj6wRhYqhWj887XGiCadRelWM5hnJqucjQ/exec?action=data";
+
+      function getRandomColor() {
+        // 少し濃いめの色が出るように調整
+        const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#009688', '#4caf50', '#ff5722', '#795548'];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      fetch(GAS_URL)
+        .then(response => response.json())
+        .then(data => {
+        if (!data || data.length <= 1) return;
+
+        data.forEach(function(row, index) {
+          if (index === 0) return;
+
+          // 数値変換（Numberを使用）
+          const originLat = Number(row[7]);
+          const originLng = Number(row[8]);
+          const spotLat = Number(row[9]);
+          const spotLng = Number(row[10]);
+
+          const catchCopy = row[6] || "";
+
+          if (!isNaN(originLat) && !isNaN(originLng) && !isNaN(spotLat) && !isNaN(spotLng)) {
+            const color = getRandomColor();
+
+            // 1. 出身地（小さな黒い点）
+            L.circleMarker([originLat, originLng], {
+              radius: 4, color: '#000', fillColor: '#000', fillOpacity: 1, weight: 1
+            }).addTo(map).bindPopup("出身地: " + (row[1] + row[2]));
+
+            // 2. つなぐ線（縁取り効果のために2本重ねる）
+            // 下側に太い黒線を引いて「縁取り」にする
+            L.polyline([[originLat, originLng], [spotLat, spotLng]], {
+              color: '#000', weight: 8, opacity: 0.2
+            }).addTo(map);
+
+            // メインのカラー線
+            L.polyline([[originLat, originLng], [spotLat, spotLng]], {
+              color: color, weight: 5, opacity: 0.9
+            }).addTo(map);
+
+            // 3. おすすめスポット（大きな円マーカー）
+            L.circleMarker([spotLat, spotLng], {
+              radius: 10,
+              color: '#fff',
+              fillColor: color,
+              fillOpacity: 1,
+              weight: 3
+            }).addTo(map).bindPopup(
+
+              "<div class='popup-card'>" +
+
+            (catchCopy
+              ? "<div style='font-size:18px;font-weight:bold;color:#d32f2f;margin-bottom:4px;'>" +
+                catchCopy +
+                "</div>"
+              : "") +
+
+            "<span class='spot-title'>" +
+              row[3] +
+            "</span><br>" +
+
+            "投稿者の出身: " +
+            (row[1] + row[2]) +
+
+            "</div>"
+          );
+          }
+        });
+        })
+    .catch(error => {
+    console.error(error);
+    });
+    </script>
+  </body>
+</html>
